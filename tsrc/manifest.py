@@ -27,7 +27,7 @@ def load(manifest_path):
         schema.Optional("gitlab"): gitlab_schema,
         "repos": [repo_schema]
     })
-    parsed = tsrc.config.parse_config_file(manifest_path, manifest_schema)
+    parsed = tsrc.config.parse_config(manifest_path, schema=manifest_schema)
     res = Manifest()
     res.load(parsed)
     return res

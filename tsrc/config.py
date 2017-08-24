@@ -2,13 +2,13 @@
 
 import path
 import ruamel.yaml
-import schema
+from schema import SchemaError
 import xdg
 
 import tsrc
 
 
-def parse_config_file(file_path, config_schema):
+def parse_config(file_path, *, schema):
     try:
         contents = file_path.text()
     except OSError as os_error:
@@ -23,20 +23,21 @@ def parse_config_file(file_path, config_schema):
         )
         message = "%s - YAML error: %s" % (context, yaml_error.context)
         raise tsrc.InvalidConfig(file_path, message)
+    if not schema:
+        return parsed
     try:
-        return config_schema.validate(parsed)
-    except schema.SchemaError as schema_error:
+        validated = schema.validate(parsed)
+    except SchemaError as schema_error:
         raise tsrc.InvalidConfig(file_path, str(schema_error))
+    return validated
 
 
-def parse_tsrc_config(config_path=None):
-    auth_schema = {
-        "gitlab": {
-            "token": str
-        }
-    }
-    tsrc_schema = schema.Schema({"auth": auth_schema})
-    if not config_path:
-        config_path = path.Path(xdg.XDG_CONFIG_HOME)
-        config_path = config_path.joinpath("tsrc.yml")
-    return parse_config_file(config_path, tsrc_schema)
+def get_tsrc_config_path():
+    config_path = path.Path(xdg.XDG_CONFIG_HOME)
+    config_path = config_path.joinpath("tsrc.yml")
+    return config_path
+
+
+def parse_tsrc_config(*, schema):
+    config_path = get_tsrc_config_path()
+    return parse_config(config_path, schema=schema)
