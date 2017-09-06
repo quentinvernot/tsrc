@@ -26,7 +26,7 @@ def get_previous_token():
 
 def generate_token():
     ui.info_1("Creating new GitHub token")
-    login = ui.ask_string("Please enter you GitHub username")
+    username = ui.ask_string("Please enter you GitHub username")
     password = getpass.getpass("Password: ")
 
     scopes = ['repo']
@@ -37,7 +37,7 @@ def generate_token():
     note_url = "https://tankerapp.github.io/tsrc"
 
     gh_api = github3.GitHub()
-    gh_api.login(login, password, two_factor_callback=lambda: ui.ask_string("2FA code: "))
+    gh_api.login(username, password, two_factor_callback=lambda: ui.ask_string("2FA code: "))
 
     user = gh_api.user()
     auth = gh_api.authorize(user, password, scopes, note, note_url)
@@ -64,3 +64,11 @@ def ensure_token():
     if not token:
         token = generate_token()
         save_token(token)
+    return token
+
+
+def login():
+    token = ensure_token()
+    gh_api = github3.GitHub()
+    gh_api.login(token=token)
+    return gh_api
