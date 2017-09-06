@@ -14,7 +14,7 @@ def parse_config(file_path, *, schema):
     except OSError as os_error:
         raise tsrc.InvalidConfig(file_path, "Could not read file: %s" % str(os_error))
     try:
-        parsed = ruamel.yaml.safe_load(contents)
+        parsed = ruamel.yaml.load(contents, ruamel.yaml.RoundTripLoader)
     except ruamel.yaml.error.YAMLError as yaml_error:
         # pylint: disable=no-member
         context = "(ligne %s, col %s) " % (
@@ -32,6 +32,11 @@ def parse_config(file_path, *, schema):
     return validated
 
 
+def dump_config(config, file_path):
+    dumped = ruamel.yaml.dump(config, Dumper=ruamel.yaml.RoundTripDumper)
+    file_path.write_text(dumped)
+
+
 def get_tsrc_config_path():
     config_path = path.Path(xdg.XDG_CONFIG_HOME)
     config_path = config_path.joinpath("tsrc.yml")
@@ -41,3 +46,8 @@ def get_tsrc_config_path():
 def parse_tsrc_config(*, schema):
     config_path = get_tsrc_config_path()
     return parse_config(config_path, schema=schema)
+
+
+def dump_tsrc_config(config):
+    config_path = get_tsrc_config_path()
+    dump_config(config, config_path)
