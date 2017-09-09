@@ -1,0 +1,13 @@
+* cleanup 'ui' imports (done on #26)
+
+* store tokens per hosts?
+
+    auth:
+      github.com:
+        token: ...
+      gitlab.com:
+        token: ...
+      10.100.0.1:
+        token: ...
+
+* do not try to factorize code between GitLabMRHandler and GitHubPRHandler ?
